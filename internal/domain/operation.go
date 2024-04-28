@@ -1,7 +1,13 @@
 package domain
 
 type Operation struct {
-	Operation string
-	Amount    float64
-	Reason    string
+	WalletId int
+	Type     string
+	Amount   int
+	Reason   string
 }
+
+const (
+	TypeDeposit = "deposit"
+	TypeDebit   = "debit"
+)

@@ -6,8 +6,6 @@ import (
 )
 
 type Operation interface {
-	Create(ctx context.Context, userId int, operation string, amount int, reason string) error
-	Read(ctx context.Context, id int) (domain.Operation, error)
-	ReadAll(ctx context.Context, userId int) ([]domain.Operation, error)
-	Delete(ctx context.Context, id int) error
+	Create(ctx context.Context, operation domain.Operation) error
+	ReadByBatch(ctx context.Context, walletId, page int) ([]domain.Operation, error)
 }

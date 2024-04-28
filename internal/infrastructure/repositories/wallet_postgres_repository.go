@@ -5,16 +5,14 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/qrave1/BlazingMoneyControlBot/internal/domain"
-	"log/slog"
 )
 
 type WalletPostgresRepository struct {
-	db  *sql.DB
-	log *slog.Logger
+	db *sql.DB
 }
 
-func NewWalletPostgresRepository(db *sql.DB, log *slog.Logger) *WalletPostgresRepository {
-	return &WalletPostgresRepository{db: db, log: log}
+func NewWalletPostgresRepository(db *sql.DB) *WalletPostgresRepository {
+	return &WalletPostgresRepository{db: db}
 }
 
 func (w *WalletPostgresRepository) Create(ctx context.Context, id int, userName string, balance int) error {
