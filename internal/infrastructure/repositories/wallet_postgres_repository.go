@@ -15,7 +15,7 @@ func NewWalletPostgresRepository(db *sql.DB) *WalletPostgresRepository {
 	return &WalletPostgresRepository{db: db}
 }
 
-func (w *WalletPostgresRepository) Create(ctx context.Context, id int, userName string, balance int) error {
+func (w *WalletPostgresRepository) Create(ctx context.Context, wallet domain.Wallet) error {
 	fail := func(err error) error {
 		return fmt.Errorf("failed to create wallet: %w", err)
 	}
@@ -29,7 +29,13 @@ func (w *WalletPostgresRepository) Create(ctx context.Context, id int, userName 
 		_ = tx.Rollback()
 	}(tx)
 
-	result, err := tx.ExecContext(ctx, "INSERT INTO wallets (id, user_name, balance) VALUES ($1, $2, $3)", id, userName, balance)
+	result, err := tx.ExecContext(
+		ctx,
+		"INSERT INTO wallets (id, user_name, balance) VALUES ($1, $2, $3)",
+		wallet.Id,
+		wallet.UserName,
+		wallet.Balance,
+	)
 	if err != nil {
 		return fail(err)
 	}

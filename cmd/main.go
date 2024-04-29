@@ -6,9 +6,9 @@ import (
 	"fmt"
 	_ "github.com/lib/pq"
 	"github.com/qrave1/BlazingMoneyControlBot/internal/config"
+	"github.com/qrave1/BlazingMoneyControlBot/internal/domain"
 	"github.com/qrave1/BlazingMoneyControlBot/internal/infrastructure/repositories"
-	"log/slog"
-	"os"
+	"math/rand/v2"
 )
 
 // todo fx di
@@ -145,34 +145,50 @@ func main() {
 
 	cfg := config.NewConfig()
 
-	log := slog.New(slog.NewTextHandler(os.Stdout, nil))
-
 	db, err := sql.Open("postgres", cfg.DSN())
 	if err != nil {
 		panic(err)
 	}
 
-	wr := repositories.NewWalletPostgresRepository(db, log)
+	wr := repositories.NewWalletPostgresRepository(db)
 
 	err = wr.Create(ctx, 1, "cyxbebr1k", 1200)
 	if err != nil {
 		panic(err)
 	}
 
-	wallet, err := wr.Read(ctx, 1)
+	or := repositories.NewOperationPostgresRepository(db)
+
+	for i := 0; i < 10; i++ {
+		t := ""
+		if i%2 == 0 {
+			t = domain.TypeDeposit
+		} else {
+			t = domain.TypeDebit
+		}
+
+		err = or.Create(ctx, domain.Operation{
+			WalletId: 1,
+			Type:     t,
+			Amount:   rand.IntN(500),
+			Reason:   "xxsm",
+		})
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	ops, err := or.ReadByBatch(ctx, 1, 1)
 	if err != nil {
 		panic(err)
 	}
 
-	fmt.Printf("%#v\n", wallet)
+	fmt.Println(ops)
 
-	err = wr.UpdateBalance(ctx, 1, 1000)
+	ops, err = or.ReadByBatch(ctx, 1, 2)
 	if err != nil {
 		panic(err)
 	}
 
-	err = wr.Delete(ctx, 1)
-	if err != nil {
-		panic(err)
-	}
+	fmt.Println(ops)
 }
